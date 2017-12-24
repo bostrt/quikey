@@ -185,7 +185,7 @@ class DatabaseChangeHandler(Observer):
         for phrase in phrases:
             self.notifier.add(PhraseHandler(phrase.key))
     
-    def notify(self, event):
+    def notify(self, event=None):
         self.init_phrase_handlers()
 
 def main():

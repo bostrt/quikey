@@ -14,17 +14,14 @@ class Monitor(Thread):
         self.observers = []
         
     def stop(self):
-        print("stop()")
         self.inotify.rm_watch(self.watch)
         self.running = False
     
     def run(self):
-        print("run()")
         while self.running:
-            print("running")
             for event in self.inotify.read():
                 for observer in self.observers:
-                    observer.notify('okay')
+                    observer.notify()
     
     def add_observer(self, observer):
         self.observers.append(observer)
