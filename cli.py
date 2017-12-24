@@ -2,6 +2,8 @@
 
 import click
 import peewee
+from terminaltables import AsciiTable
+
 from models import PhraseStore
 
 MARKER = '''\n\n
@@ -65,10 +67,13 @@ def rm(ctx,name):
 @cli.command()
 @click.pass_context
 def ls(ctx):
-    # TODO: Format into table or fixed width columns.
+    table = [['Name', 'Phrase', 'Tags']]
     phrases = PhraseStore.get_all()
     for phrase in phrases:
-        print('%s => %s' % (phrase.key, phrase.value))
+        tags = ', '.join([x.name for x in phrase.tags])
+        table.append([phrase.key, phrase.value, tags])
+    output = AsciiTable(table)
+    print(output.table)
 
 if __name__=='__main__':
     cli(obj={})
