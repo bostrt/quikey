@@ -15,9 +15,10 @@ def cli(ctx):
     
 @cli.command()
 @click.option('--name' ,'-n', required=True, help='Name of quikey phrase to add.')
+@click.option('--tag', '-t', multiple=True, help='Optional tags for the phrase. You can specify this option multiple times.')
 @click.option('--phrase', '-p', help='The full phrase to add. If this option is not specified then your default editor ($EDITOR) will be used.')
 @click.pass_context
-def add(ctx,name,phrase):
+def add(ctx,name,phrase,tag):
     contents = None
     if phrase is not None:
         contents = phrase
@@ -29,7 +30,7 @@ def add(ctx,name,phrase):
             click.echo('quikey phrase with key of %s not added' % name)
             return
     try:
-        PhraseStore.put(name, contents)
+        PhraseStore.put(name, contents, tag)
         click.echo('quikey phrase with key of %s added.' % name)
     except peewee.IntegrityError:
         click.echo('quikey phrase with key of %s already exists. Please choose another --name/-n value.' % name)

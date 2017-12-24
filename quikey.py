@@ -3,14 +3,13 @@ from pynput.keyboard import Key, Controller, Listener, KeyCode
 from collections import deque
 from threading import Lock
 import re
-from models import Phrase, PhraseStore
+from models import Phrase, PhraseStore, initialize_db
 from monitor import Monitor
 
 KEYBUFF_SIZE=8
 
 typelock = Lock()
 keyboard = Controller()
-#keybuff = deque(u'x'*KEYBUFF_SIZE, maxlen=KEYBUFF_SIZE)
 
 class Observer:
     def notify(self, event):
@@ -189,6 +188,7 @@ class DatabaseChangeHandler(Observer):
         self.init_phrase_handlers()
 
 def main():
+    initialize_db()
     notifier = Notifier(typelock)
     dbchange = DatabaseChangeHandler(notifier)
     monitor = Monitor('./test.db')
