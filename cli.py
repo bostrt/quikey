@@ -6,9 +6,10 @@ from terminaltables import AsciiTable
 
 from models import PhraseStore
 
-MARKER = '''\n\n
+MARKER = '''
 # Everything after this line will be ignored.
-# Insert your quikey phrase into this file then save and close.'''
+# Insert your quikey phrase into this file then save and close.
+'''
 
 @click.group()
 @click.pass_context
@@ -25,7 +26,7 @@ def add(ctx,name,phrase,tag):
     if phrase is not None:
         contents = phrase
     else:
-        contents = click.edit(MARKER)
+        contents = click.edit('\n\n'+MARKER)
         if contents is not None:
             contents = contents.split(MARKER, 1)[0].rstrip('\n')
         else:
@@ -43,7 +44,7 @@ def add(ctx,name,phrase,tag):
 def edit(ctx,name):
     phrase = PhraseStore.get(name)
     if phrase is not None:
-        contents = click.edit(phrase + MARKER)
+        contents = click.edit(phrase + '\n\n' + MARKER)
         if contents is not None:
             contents = contents.split(MARKER, 1)[0].rstrip('\n')
             PhraseStore.update(name, contents)
