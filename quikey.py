@@ -37,9 +37,25 @@ class PhraseHandler(Observer):
         if self.regex.match(incomingkey):
             phrase = PhraseStore.get(self.key)
             self.backspace(len(self.key)+1)
-            keyboard.type(phrase)
+            # FIXME: Hack to workaround https://github.com/moses-palmer/pynput/issues/64
+            # Replace with simple API call below once fixed.
+            #keyboard.type(phrase)
+            self.type(phrase)
             return True
         return False
+    
+    def type(self, string):
+        for i, character in enumerate(string):
+            try:
+                # FIXME: Additional hack to workaround https://github.com/moses-palmer/pynput/issues/64                
+                if character == '\n':
+                    keyboard.press(Key.enter)
+                    keyboard.release(Key.enter)                    
+                else:
+                    keyboard.press(character)
+                    keyboard.release(character)
+            except (ValueError, keyboard.InvalidKeyException):
+                raise keyboard.InvalidCharacterException(i, character)
     
     def backspace(self, count):
         i = 0
