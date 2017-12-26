@@ -8,7 +8,6 @@ import re
 from models import Phrase, PhraseStore, initialize_db, db
 from monitor import Monitor
 
-
 KEYBUFF_SIZE=8
 
 typelock = Lock()
