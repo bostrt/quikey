@@ -2,9 +2,12 @@
 from pynput.keyboard import Key, Controller, Listener, KeyCode
 from collections import deque
 from threading import Lock
+from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME
+import os
 import re
-from models import Phrase, PhraseStore, initialize_db
+from models import Phrase, PhraseStore, initialize_db, db
 from monitor import Monitor
+
 
 KEYBUFF_SIZE=8
 
@@ -202,12 +205,17 @@ class DatabaseChangeHandler(Observer):
     
     def notify(self, event=None):
         self.init_phrase_handlers()
+        
+def initialize_xdg():
+    os.makedirs(XDG_DATA_HOME + '/quikey', exist_ok=True)
+    os.makedirs(XDG_CONFIG_HOME + '/quikey', exist_ok=True)    
 
 def main():
+    initialize_xdg();
     initialize_db()
     notifier = Notifier(typelock)
     dbchange = DatabaseChangeHandler(notifier)
-    monitor = Monitor('./test.db')
+    monitor = Monitor(db.database)
     monitor.add_observer(dbchange)
     i = InputHandler(typelock, notifier)    
     try:

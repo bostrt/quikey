@@ -1,7 +1,8 @@
 from peewee import *
 from playhouse.fields import ManyToManyField
+from xdg import XDG_DATA_HOME
 
-db = SqliteDatabase('./test.db')
+db = SqliteDatabase(XDG_DATA_HOME + '/quikey/phrases.db')
 
 class Tag(Model):
     name = CharField(index=True,unique=True)
