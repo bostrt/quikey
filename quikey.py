@@ -5,10 +5,10 @@ from threading import Lock
 from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME
 import os
 import re
+import configparser
+from configparser import NoSectionError
 from models import Phrase, PhraseStore, initialize_db, db
 from monitor import Monitor
-
-KEYBUFF_SIZE=8
 
 typelock = Lock()
 keyboard = Controller()
@@ -139,8 +139,17 @@ class TriggerPhraseHandler:
     Handles "trigger" keys that tell this app when to look for key 
     substitution phrases.
     """
+    def __init__(self, config):
+        keyliststr = config.get('triggerkeys', 'enter,space')
+        keylistraw = keyliststr.split(',')
+        self.triggerkeys = []
+        for key in keylistraw:
+            key = key.strip()
+            if len(key) > 0 and key in Key.__members__:
+                self.triggerkeys.append(Key[key])
+    
     def verify(self, key):
-        return key == Key.enter
+        return key in self.triggerkeys
     
     def onkey(self, key):
         return self.verify(key)
@@ -149,13 +158,13 @@ class InputHandler:
     """
     Handles keyboard input, calling each key-specific handler.
     """
-    def __init__(self, lock, notifier):
-        #self.keybuff = keybuff
-        self.keybuff = deque(maxlen=KEYBUFF_SIZE)
+    def __init__(self, lock, notifier, config):
+        keybuffsize = config.getint('keybuffersize', 32)
+        self.keybuff = deque(maxlen=keybuffsize)
         self.lock = lock
         self.notifier = notifier
         self.subhandlers = []
-        self.triggerhandler = TriggerPhraseHandler()
+        self.triggerhandler = TriggerPhraseHandler(config)
 
     def dequetostr(self):
         ret = u''
@@ -188,9 +197,6 @@ def backspace(count):
         keyboard.release(Key.backspace)
         i = i + 1
 
-def on_release(key):
-    pass
-
 class DatabaseChangeHandler(Observer):
     def __init__(self, notifier):
         self.notifier = notifier
@@ -209,19 +215,28 @@ def initialize_xdg():
     os.makedirs(XDG_DATA_HOME + '/quikey', exist_ok=True)
     os.makedirs(XDG_CONFIG_HOME + '/quikey', exist_ok=True)    
 
+def initialize_config():
+    config = configparser.ConfigParser()
+    config.read(XDG_CONFIG_HOME + '/quikey/quikey.ini')
+    if not config.has_section('main'):
+        err = 'Configuration file "%s" missing required [main] section.' % (XDG_CONFIG_HOME + '/quikey/quikey.ini')
+        raise NoSectionError(err)
+    return config
+
 def main():
     initialize_xdg();
+    config = initialize_config();
     initialize_db()
     notifier = Notifier(typelock)
     dbchange = DatabaseChangeHandler(notifier)
     monitor = Monitor(db.database)
     monitor.add_observer(dbchange)
-    i = InputHandler(typelock, notifier)    
+    i = InputHandler(typelock, notifier, config['main'])
     try:
         monitor.start()
         i.add_handler(DeleteHandler())        
         i.add_handler(AlphaNumHandler())
-        with Listener(on_press=i, on_release=on_release) as listener:
+        with Listener(on_press=i) as listener:
             listener.join()
     except KeyboardInterrupt:
         monitor.stop()
