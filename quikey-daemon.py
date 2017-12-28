@@ -2,10 +2,11 @@
 from pynput.keyboard import Key, Controller, Listener, KeyCode
 from collections import deque
 from threading import Lock
-from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME
+from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME, XDG_CACHE_HOME
 import os
 import re
 import configparser
+import signal
 from configparser import NoSectionError
 from models import Phrase, PhraseStore, initialize_db, db
 from monitor import Monitor
@@ -211,9 +212,20 @@ class DatabaseChangeHandler(Observer):
     def notify(self, event=None):
         self.init_phrase_handlers()
         
+class ShutdownHook:
+    def __init__(self, listener, monitor):
+        self.monitor = monitor
+        self.listener = listener
+        
+    def __call__(self, signal, frame):
+        self.monitor.stop()
+        self.listener.stop()
+        delete_pid()
+        
 def initialize_xdg():
     os.makedirs(XDG_DATA_HOME + '/quikey', exist_ok=True)
     os.makedirs(XDG_CONFIG_HOME + '/quikey', exist_ok=True)    
+    os.makedirs(XDG_CACHE_HOME + '/quikey', exist_ok=True)        
 
 def initialize_config():
     config = configparser.ConfigParser()
@@ -223,6 +235,14 @@ def initialize_config():
         raise NoSectionError(err)
     return config
 
+def write_pid():
+    pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'
+    open(pidfile, 'w').write(str(os.getpid()))
+
+def delete_pid():
+    pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'
+    os.remove(pidfile)
+    
 def main():
     initialize_xdg();
     config = initialize_config();
@@ -232,14 +252,13 @@ def main():
     monitor = Monitor(db.database)
     monitor.add_observer(dbchange)
     i = InputHandler(typelock, notifier, config['main'])
-    try:
-        monitor.start()
-        i.add_handler(DeleteHandler())        
-        i.add_handler(AlphaNumHandler())
-        with Listener(on_press=i) as listener:
-            listener.join()
-    except KeyboardInterrupt:
-        monitor.stop()
+    monitor.start()
+    i.add_handler(DeleteHandler())        
+    i.add_handler(AlphaNumHandler())
+    write_pid()
+    with Listener(on_press=i) as listener:
+        signal.signal(signal.SIGTERM, ShutdownHook(listener, monitor))
+        listener.join()
 
 if __name__=='__main__':
     main()

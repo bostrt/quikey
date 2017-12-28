@@ -4,6 +4,9 @@ import click
 import peewee
 from terminaltables import AsciiTable
 import humanize
+from xdg import XDG_CACHE_HOME
+import signal
+import os
 
 from models import PhraseStore
 
@@ -77,7 +80,7 @@ def ls(ctx, show_all):
         value = (phrase.value[:40] + '...' if len(phrase.value) > 40  and not show_all else phrase.value)
         table.append([phrase.key, tags, humanize.naturalday(phrase.modified), value])
     output = AsciiTable(table)
-    print(output.table)
+    click.echo(output.table)
     
 @cli.command()
 @click.pass_context
@@ -87,7 +90,12 @@ def start(ctx):
 @cli.command()
 @click.pass_context
 def stop(ctx):
-    pass
+    try:
+        pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'    
+        pid = open(pidfile, 'r').readline()
+        os.kill(int(pid), signal.SIGTERM)
+    except FileNotFoundError:
+        click.echo('quikey is not running')
 
 @cli.command()
 @click.pass_context
