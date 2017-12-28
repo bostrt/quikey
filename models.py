@@ -1,6 +1,7 @@
 from peewee import *
 from playhouse.fields import ManyToManyField
 from xdg import XDG_DATA_HOME
+from datetime import datetime
 
 db = SqliteDatabase(XDG_DATA_HOME + '/quikey/phrases.db')
 
@@ -13,6 +14,8 @@ class Phrase(Model):
     key = CharField(index=True,unique=True)
     value = CharField()
     tags = ManyToManyField(Tag, related_name='phrases')
+    added = DateTimeField(default=datetime.now())
+    modified = DateTimeField(default=datetime.now())
     class Meta:
         database = db
 
@@ -43,11 +46,12 @@ class PhraseStore:
             p = Phrase.get(Phrase.key == key)
             if value is not None:
                 p.value = value
-                p.save()
             if tags is not None:
                 for tag in tags:
                     t,created = Tag.get_or_create(name=tag)
                     p.tags.add(t)
+            p.modified = datetime.now()
+            p.save()                    
             return True
         except Phrase.DoesNotExist:
             return False
@@ -66,4 +70,4 @@ class PhraseStore:
             return False
         
     def get_all():
-        return Phrase.select()
+        return Phrase.select().order_by(Phrase.modified.desc())

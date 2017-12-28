@@ -3,6 +3,7 @@
 import click
 import peewee
 from terminaltables import AsciiTable
+import humanize
 
 from models import PhraseStore
 
@@ -66,15 +67,32 @@ def rm(ctx,name):
         click.echo('quikey phrase with key of %s does not exist.' % name)
     
 @cli.command()
+@click.option('--show-all', is_flag=True)
 @click.pass_context
-def ls(ctx):
-    table = [['Name', 'Phrase', 'Tags']]
+def ls(ctx, show_all):
+    table = [['Name', 'Tags', 'Last Modified', 'Phrase']]
     phrases = PhraseStore.get_all()
     for phrase in phrases:
         tags = ', '.join([x.name for x in phrase.tags])
-        table.append([phrase.key, phrase.value, tags])
+        value = (phrase.value[:40] + '...' if len(phrase.value) > 40  and not show_all else phrase.value)
+        table.append([phrase.key, tags, humanize.naturalday(phrase.modified), value])
     output = AsciiTable(table)
     print(output.table)
+    
+@cli.command()
+@click.pass_context
+def start(ctx):
+    pass
+
+@cli.command()
+@click.pass_context
+def stop(ctx):
+    pass
+
+@cli.command()
+@click.pass_context
+def restart(ctx):
+    pass
 
 if __name__=='__main__':
     cli(obj={})
