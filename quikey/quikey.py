@@ -8,7 +8,7 @@ from xdg import XDG_CACHE_HOME
 import signal
 import os
 
-from models import PhraseStore
+from .models import PhraseStore
 
 MARKER = '''
 # Everything after this line will be ignored.
