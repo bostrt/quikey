@@ -117,7 +117,8 @@ class AlphaNumHandler:
             # Pop off front of queue if at max length.
             keybuff.popleft()
         # Push new input onto end of queue.
-        keybuff.append(key.char)
+        if key.char is not None:
+            keybuff.append(key.char)
         return True
         
 class DeleteHandler:
