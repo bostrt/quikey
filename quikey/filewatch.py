@@ -1,7 +1,7 @@
 from threading import Thread
 from inotify_simple import INotify, flags
 
-class Monitor(Thread):
+class InotifyWatch(Thread):
     """
     Watches for inotify notifications when the databsae file changes. This
     sends notification to any observers added to this monitor.
@@ -25,4 +25,3 @@ class Monitor(Thread):
     
     def add_observer(self, observer):
         self.observers.append(observer)
-                

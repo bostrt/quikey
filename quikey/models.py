@@ -1,73 +1,30 @@
-from peewee import *
-from playhouse.fields import ManyToManyField
-from xdg import XDG_DATA_HOME
+from tinydb import TinyDB, Query
 from datetime import datetime
 
-db = SqliteDatabase(XDG_DATA_HOME + '/quikey/phrases.db')
+class Database():
+    def __init__(self, appDirs, config, dbFile='phrases.json'):
+        self.appDirs = appDirs
+        self.config = config
+        self.dbFile = self.appDirs.data + dbFile
+        # Ensure database file exists
+        self.db = TinyDB(self.dbFile)
 
-class Tag(Model):
-    name = CharField(index=True,unique=True)
-    class Meta:
-        database = db
+    def get(self, key):
+        phrase = Query()
+        phraseDict = self.db.get(phrase.key == key)
+        return phraseDict.get('value')
 
-class Phrase(Model):
-    key = CharField(index=True,unique=True)
-    value = CharField()
-    tags = ManyToManyField(Tag, related_name='phrases')
-    added = DateTimeField(default=datetime.now())
-    modified = DateTimeField(default=datetime.now())
-    class Meta:
-        database = db
+    def put(self, key, value, tags=None):
+        now = datetime.utcnow().isoformat()
+        phrase = {'key': key, 'value': value, 'tags': tags, 'created': now}
+        self.db.insert(phrase)
 
-def initialize_db():
-    db.create_tables([Tag, Phrase, Phrase.tags.get_through_model()], safe=True)
+    def update(self, key, value, tags=None):
+        pass
 
-class PhraseStore:
-    """
-    A simple abstraction on database access.
-    """
-    def get(key):
-        try:
-            p = Phrase.get(Phrase.key == key)
-            return p.value
-        except Phrase.DoesNotExist:
-            return None
-        
-    def put(key, value, tags=None):
-        p = Phrase(key=key, value=value)
-        p.save()        
-        if tags is not None:
-            for tag in tags:
-                t,created = Tag.get_or_create(name=tag)
-                p.tags.add(t)
-                
-    def update(key, value=None, tags=None):
-        try:
-            p = Phrase.get(Phrase.key == key)
-            if value is not None:
-                p.value = value
-            if tags is not None:
-                for tag in tags:
-                    t,created = Tag.get_or_create(name=tag)
-                    p.tags.add(t)
-            p.modified = datetime.now()
-            p.save()                    
-            return True
-        except Phrase.DoesNotExist:
-            return False
-        
-    def delete(key):
-        try:
-            p = Phrase.get(Phrase.key == key)
-            if p is not None:
-                p.delete_instance()
-                return True
-            else:
-                # No phrase found with key
-                return False
-        except Phrase.DoesNotExist:
-            # Someting bad happened during deletion.
-            return False
-        
-    def get_all():
-        return Phrase.select().order_by(Phrase.modified.desc())
+    def delete(self, key):
+        phrase = Query()
+        return self.db.remove(phrase.key == key)
+
+    def all(self):
+        return self.db.all()
