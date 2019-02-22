@@ -2,6 +2,7 @@
 from pynput.keyboard import Key, Controller, Listener, KeyCode
 from threading import Lock
 from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME, XDG_CACHE_HOME
+import click
 import os
 import signal
 import configparser
@@ -22,7 +23,6 @@ class DatabaseChangeHandler:
 
     def init_phrase_handlers(self):
         self.notifier.clear()
-        #phrases = PhraseStore.get_all()
         phrases = self.db.all()
         for phrase in phrases:
             self.notifier.add(PhraseHandler(phrase['key'], self.db))
@@ -57,21 +57,35 @@ def get_config(directories, iniFile='quikey.ini'):
     return config
 
 def main():
-    appDirs = AppDirectories()
-    config = get_config(appDirs)
-    notifier = Notifier(typelock)
-    database = Database(appDirs, config)
+    # Initialize all components and hook them up.
+    appDirs = AppDirectories() # XDG folders
+    config = get_config(appDirs) # Read config
+    notifier = Notifier(typelock) # Create the notifier that calls to each phrase handler
+    database = Database(appDirs, config) # Read database in
     dbchange = DatabaseChangeHandler(notifier, database)
-    watch = InotifyWatch(database.dbFile)
-    watch.add_observer(dbchange)
-    i = InputHandler(typelock, notifier, config['main'])
+    watch = InotifyWatch(database.dbFile) 
+    watch.add_observer(dbchange)  # Watch for changes in database outside this process
+    i = InputHandler(typelock, notifier, config['main']) # Accepts keyboard inputs
     watch.start()
-    i.add_handler(DeleteHandler())        
-    i.add_handler(AlphaNumHandler())
-    write_pid()
-    with Listener(on_press=i) as listener:
+    i.add_handler(DeleteHandler()) # Special behavior for deletes
+    i.add_handler(AlphaNumHandler()) # Standard behavior for everything else
+    write_pid() # Store the current pid
+    with Listener(on_press=i) as listener: # Continue listening until SIGTERM
         signal.signal(signal.SIGTERM, ShutdownHook(listener, watch))
         listener.join()
 
-if __name__=='__main__':
+@click.group()
+@click.pass_context
+def cli(obj):
+    pass
+
+@cli.command()
+@click.option('--foreground' ,'-f', required=False, default=False, help='Run the quikey daemon process in foreground.')
+@click.option('--buffer-size', '-b', required=False, default=32, help='Size of buffer that stores keystrokes.')
+@click.option('--trigger-keys', '-t', multiple=True, required=False, default='enter', help='Trigger keys that indicate the end of a key phrase. The key name should match one from https://pythonhosted.org/pynput/_modules/pynput/keyboard/_base.html#Key')
+@click.pass_context
+def start(ctx, foreground, buffer_size, trigger_keys):
     main()
+
+if __name__=='__main__':
+    cli(obj={})

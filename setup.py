@@ -16,6 +16,7 @@ setup(
         'configparser',
         'inotify-simple',
         'peewee',
+        'tinydb',
         'pynput',
         'terminaltables',
         'xdg',
