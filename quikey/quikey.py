@@ -8,17 +8,23 @@ from xdg import XDG_CACHE_HOME
 import signal
 import os
 
-from .models import PhraseStore
+from models import Database
+from directories import AppDirectories
 
 MARKER = '''
 # Everything after this line will be ignored.
 # Insert your quikey phrase into this file then save and close.
 '''
 
+def get_database():
+    appDirs = AppDirectories() # XDG folders
+    d = Database(appDirs)
+    return d
+
 @click.group()
 @click.pass_context
 def cli(ctx):
-    pass
+    ctx.obj['database'] = get_database()
     
 @cli.command()
 @click.option('--name' ,'-n', required=True, help='Name of quikey phrase to add.')
@@ -26,6 +32,7 @@ def cli(ctx):
 @click.option('--phrase', '-p', help='The full phrase to add. If this option is not specified then your default editor ($EDITOR) will be used.')
 @click.pass_context
 def add(ctx,name,phrase,tag):
+    db = ctx.obj['database']
     contents = None
     if phrase is not None:
         contents = phrase
@@ -37,7 +44,7 @@ def add(ctx,name,phrase,tag):
             click.echo('quikey phrase with key of %s not added' % name)
             return
     try:
-        PhraseStore.put(name, contents, tag)
+        db.put(name, contents, tag)
         click.echo('quikey phrase with key of %s added.' % name)
     except peewee.IntegrityError:
         click.echo('quikey phrase with key of %s already exists. Please choose another --name/-n value.' % name)
@@ -46,12 +53,13 @@ def add(ctx,name,phrase,tag):
 @click.option('--name', '-n', required=True, help='Name of quikey phrase to edit.')
 @click.pass_context
 def edit(ctx,name):
-    phrase = PhraseStore.get(name)
+    db = ctx.obj['database']
+    phrase = db.get(name)
     if phrase is not None:
         contents = click.edit(phrase + '\n\n' + MARKER)
         if contents is not None:
             contents = contents.split(MARKER, 1)[0].rstrip('\n')
-            PhraseStore.update(name, contents)
+            db.update(name, contents)
             click.echo('quikey phrase with key of %s updated.' % name)
         else:
             click.echo('quikey phrase with key of %s not updated' % name)
@@ -63,8 +71,9 @@ def edit(ctx,name):
 @click.option('--name', '-n', required=True, help='Name of quikey phrase to remove.')
 @click.pass_context
 def rm(ctx,name):
+    db = ctx.obj['database']
     # TODO: Support multiple.
-    if PhraseStore.delete(name):
+    if db.delete(name):
         click.echo('quikey phrase with key of %s has been deleted.' % name)
     else:
         click.echo('quikey phrase with key of %s does not exist.' % name)
@@ -73,8 +82,9 @@ def rm(ctx,name):
 @click.option('--show-all', is_flag=True)
 @click.pass_context
 def ls(ctx, show_all):
+    db = ctx.obj['database']
     table = [['Name', 'Tags', 'Last Modified', 'Phrase']]
-    phrases = PhraseStore.get_all()
+    phrases = db.all()
     for phrase in phrases:
         tags = ', '.join([x.name for x in phrase.tags])
         value = (phrase.value[:40] + '...' if len(phrase.value) > 40  and not show_all else phrase.value)
@@ -87,15 +97,22 @@ def ls(ctx, show_all):
 def start(ctx):
     pass
 
-@cli.command()
-@click.pass_context
-def stop(ctx):
+def read_pid():
+    pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'
     try:
-        pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'    
-        pid = open(pidfile, 'r').readline()
-        os.kill(int(pid), signal.SIGTERM)
+        with open(pidfile, 'r') as f:
+            return f.read()
     except FileNotFoundError:
-        click.echo('quikey is not running')
+        return None
+
+@cli.command()
+def stop():
+    # Send SIGTERM signal
+    pid = read_pid()
+    if pid is None:
+        print("No quikey-daemon process currently running.")
+        return
+    os.kill(int(pid), signal.SIGTERM)
 
 @cli.command()
 @click.pass_context
