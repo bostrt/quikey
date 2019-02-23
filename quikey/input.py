@@ -113,11 +113,9 @@ class TriggerPhraseHandler:
     Handles "trigger" keys that tell this app when to look for key 
     substitution phrases.
     """
-    def __init__(self, config):
-        keyliststr = config.get('triggerkeys', 'enter,space')
-        keylistraw = keyliststr.split(',')
+    def __init__(self, trigger_keys):
         self.triggerkeys = []
-        for key in keylistraw:
+        for key in trigger_keys:
             key = key.strip()
             if len(key) > 0 and key in Key.__members__:
                 self.triggerkeys.append(Key[key])
@@ -132,13 +130,12 @@ class InputHandler:
     """
     Handles keyboard input, calling each key-specific handler.
     """
-    def __init__(self, lock, notifier, config):
-        keybuffsize = config.getint('keybuffersize', 32)
-        self.keybuff = deque(maxlen=keybuffsize)
+    def __init__(self, lock, notifier, buffer_size, trigger_keys):
+        self.keybuff = deque(maxlen=buffer_size)
         self.lock = lock
         self.notifier = notifier
         self.subhandlers = []
-        self.triggerhandler = TriggerPhraseHandler(config)
+        self.triggerhandler = TriggerPhraseHandler(trigger_keys)
 
     def dequetostr(self):
         ret = u''

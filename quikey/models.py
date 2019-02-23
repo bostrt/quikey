@@ -2,9 +2,8 @@ from tinydb import TinyDB, Query
 from datetime import datetime
 
 class Database():
-    def __init__(self, appDirs, config, dbFile='phrases.json'):
+    def __init__(self, appDirs, dbFile='phrases.json'):
         self.appDirs = appDirs
-        self.config = config
         self.dbFile = self.appDirs.data + dbFile
         # Ensure database file exists
         self.db = TinyDB(self.dbFile)
