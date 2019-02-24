@@ -4,7 +4,11 @@ A keyboard macro tool.
 
 # Installation
 ```
-# pip install --user quikey
+# pip3 install --user quikey
+```
+or 
+```
+# python3 -m pip install --user quikey
 ```
 
 Package above installs two available executables:
