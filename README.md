@@ -1,4 +1,4 @@
-# Quikey
+# Quikey [![PyPI version](https://badge.fury.io/py/quikey.svg)](https://badge.fury.io/py/quikey)
 
 A keyboard macro tool.
 
