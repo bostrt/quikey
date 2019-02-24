@@ -25,7 +25,6 @@ class PhraseHandler:
         keyboard = Controller()
 
         if self.regex.match(incomingkey):
-            #phrase = PhraseStore.get(self.key)
             phrase = self.db.get(self.key)
             self.backspace(len(self.key)+1)
             keyboard.type(phrase)
@@ -146,9 +145,6 @@ class InputHandler:
         return ret        
 
     def __call__(self, key):
-        keyboard = Controller()
-        if key == Key.esc:
-            keyboard.type("okay")
         if self.lock.locked():
             # Skip. Something else has acquired lock.
             return 

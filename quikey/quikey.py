@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 import click
-import peewee
 from terminaltables import AsciiTable
 import humanize
 from xdg import XDG_CACHE_HOME
 import signal
 import os
 
-from models import Database
-from directories import AppDirectories
+from quikey.models import Database
+from quikey.directories import AppDirectories
+
 
 MARKER = '''
 # Everything after this line will be ignored.
@@ -23,8 +23,8 @@ def get_database():
 
 @click.group()
 @click.pass_context
-def cli(obj):
-    obj.obj['database'] = get_database()
+def cli(ctx):
+    ctx.obj['database'] = get_database()
     
 @cli.command()
 @click.option('--name' ,'-n', required=True, help='Name of quikey phrase to add.')

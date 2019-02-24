@@ -6,13 +6,11 @@ from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME, XDG_CACHE_HOME
 import click
 import os
 import signal
-import configparser
-from configparser import NoSectionError
 
-from models import Database
-from directories import AppDirectories
-from filewatch import InotifyWatch
-from input import PhraseHandler, Notifier, InputHandler, AlphaNumHandler, DeleteHandler
+from quikey.models import Database
+from quikey.directories import AppDirectories
+from quikey.filewatch import InotifyWatch
+from quikey.input import PhraseHandler, Notifier, InputHandler, AlphaNumHandler, DeleteHandler
 
 typelock = Lock()
 
