@@ -9,7 +9,7 @@ import os
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
-
+import subprocess
 
 MARKER = '''
 # Everything after this line will be ignored.
@@ -91,9 +91,8 @@ def ls(ctx, show_all):
     click.echo(output.table)
     
 @cli.command()
-@click.pass_context
-def start(ctx):
-    pass
+def start():
+    subprocess.run(['quikey-daemon', 'start'])
 
 def read_pid():
     pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'
@@ -111,8 +110,3 @@ def stop():
         print("No quikey-daemon process currently running.")
         return
     os.kill(int(pid), signal.SIGTERM)
-
-@cli.command()
-@click.pass_context
-def restart(ctx):
-    pass
