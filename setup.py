@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
+
+VERSION='0.0.2'
+
 setup(
     name='quikey',
-    version='0.0.1',
+    version=VERSION,
     packages=find_packages(),
-    author='Robert Bost',
+    author='bostrt',
     entry_points = {
-        'console_scripts': ['quikey=quikey.quikey:cli']
+        'console_scripts': [
+            'quikey=quikey.quikey:cli',
+            'qkdaemon=quikey.qkdaemon:cli'
+            ]
     },
     description='A keyboard macro tool.',
+    license='',
     url='https://github.com/bostrt/quikey',
     install_requires=[
         'click', 
         'colored',
-        'configparser',
+        'python-daemon',
         'inotify-simple',
-        'peewee',
         'tinydb',
         'pynput',
         'terminaltables',
