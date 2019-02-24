@@ -23,8 +23,8 @@ def get_database():
 
 @click.group()
 @click.pass_context
-def cli(ctx):
-    ctx.obj['database'] = get_database()
+def cli(obj):
+    obj.obj['database'] = get_database()
     
 @cli.command()
 @click.option('--name' ,'-n', required=True, help='Name of quikey phrase to add.')
@@ -86,9 +86,10 @@ def ls(ctx, show_all):
     table = [['Name', 'Tags', 'Last Modified', 'Phrase']]
     phrases = db.all()
     for phrase in phrases:
-        tags = ', '.join([x.name for x in phrase.tags])
-        value = (phrase.value[:40] + '...' if len(phrase.value) > 40  and not show_all else phrase.value)
-        table.append([phrase.key, tags, humanize.naturalday(phrase.modified), value])
+        tags = ', '.join([x.name for x in phrase.get('tags')])
+        v = phrase.get('value')
+        value = (v[:40] + '...' if len(v) > 40  and not show_all else v)
+        table.append([phrase.get('key'), tags, humanize.naturalday(phrase.get('updated')), value])
     output = AsciiTable(table)
     click.echo(output.table)
     

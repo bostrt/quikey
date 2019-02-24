@@ -2,8 +2,6 @@ from pynput.keyboard import Key, Controller, Listener, KeyCode
 import re
 from collections import deque
 
-keyboard = Controller()
-
 class PhraseHandler:
     """
     Watches for notifications about new incoming phrases. A single 
@@ -24,6 +22,8 @@ class PhraseHandler:
         self.regex = re.compile('^.*' + escaped + '$')
         
     def notify(self, incomingkey):
+        keyboard = Controller()
+
         if self.regex.match(incomingkey):
             #phrase = PhraseStore.get(self.key)
             phrase = self.db.get(self.key)
@@ -33,6 +33,8 @@ class PhraseHandler:
         return False
     
     def backspace(self, count):
+        keyboard = Controller()
+
         i = 0
         while i < count:
             keyboard.press(Key.backspace)
@@ -144,6 +146,9 @@ class InputHandler:
         return ret        
 
     def __call__(self, key):
+        keyboard = Controller()
+        if key == Key.esc:
+            keyboard.type("okay")
         if self.lock.locked():
             # Skip. Something else has acquired lock.
             return 
@@ -162,6 +167,8 @@ class InputHandler:
         self.subhandlers.append(handler)
     
 def backspace(count):
+    keyboard = Controller()
+
     i = 0
     while i < count:
         keyboard.press(Key.backspace)

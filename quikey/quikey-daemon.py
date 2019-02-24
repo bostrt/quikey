@@ -26,7 +26,7 @@ class DatabaseChangeHandler:
         self.notifier.clear()
         phrases = self.db.all()
         for phrase in phrases:
-            self.notifier.add(PhraseHandler(phrase['key'], self.db))
+            self.notifier.add(PhraseHandler(phrase.get('key'), self.db))
     
     def notify(self, event=None):
         self.init_phrase_handlers()
@@ -85,12 +85,13 @@ def cli(obj):
 @cli.command()
 @click.option('--foreground' ,'-f', is_flag=True, required=False, default=False, help='Run the quikey daemon process in foreground.')
 @click.option('--buffer-size', '-b', required=False, default=32, help='Size of buffer that stores keystrokes.')
-@click.option('--trigger-keys', '-t', multiple=True, required=False, default='enter', help='Trigger keys that indicate the end of a key phrase. The key name should match one from https://pythonhosted.org/pynput/_modules/pynput/keyboard/_base.html#Key')
+@click.option('--trigger-keys', '-t', multiple=True, required=False, default=['enter', 'space'], help='Trigger keys that indicate the end of a key phrase. The key name should match one from https://pythonhosted.org/pynput/_modules/pynput/keyboard/_base.html#Key')
 def start(foreground, buffer_size, trigger_keys):
     if foreground:
         main(foreground, buffer_size, trigger_keys)
     else:
-        with daemon.DaemonContext():
+        log = open("/tmp/mylog", "w+")
+        with daemon.DaemonContext(stdout=log,stderr=log):
             main(foreground, buffer_size, trigger_keys)
 
 @cli.command()

@@ -15,11 +15,12 @@ class Database():
 
     def put(self, key, value, tags=None):
         now = datetime.utcnow().isoformat()
-        phrase = {'key': key, 'value': value, 'tags': tags, 'created': now}
+        phrase = {'key': key, 'value': value, 'tags': tags, 'updated': now}
         self.db.insert(phrase)
 
     def update(self, key, value, tags=None):
-        pass
+        now = datetime.utcnow().isoformat()
+        self.db.update({'key': key, 'value': value, 'updated': now})
 
     def delete(self, key):
         phrase = Query()
