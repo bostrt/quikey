@@ -85,6 +85,10 @@ def cli(obj):
 @click.option('--buffer-size', '-b', required=False, default=32, help='Size of buffer that stores keystrokes.')
 @click.option('--trigger-keys', '-t', multiple=True, required=False, default=['enter', 'space'], help='Trigger keys that indicate the end of a key phrase. The key name should match one from https://pythonhosted.org/pynput/_modules/pynput/keyboard/_base.html#Key')
 def start(foreground, buffer_size, trigger_keys):
+    pid = read_pid()
+    if pid:
+        print('Quikey daemon is already running (pid: %s).' % pid)
+        exit
     if foreground:
         main(foreground, buffer_size, trigger_keys)
     else:
@@ -97,6 +101,6 @@ def stop():
     # Send SIGTERM signal
     pid = read_pid()
     if pid is None:
-        print("No quikey-daemon process currently running.")
+        print("No Quikey daemon currently running.")
         return
     os.kill(int(pid), signal.SIGTERM)

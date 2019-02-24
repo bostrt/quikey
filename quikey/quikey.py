@@ -104,9 +104,4 @@ def read_pid():
 
 @cli.command()
 def stop():
-    # Send SIGTERM signal
-    pid = read_pid()
-    if pid is None:
-        print("No quikey-daemon process currently running.")
-        return
-    os.kill(int(pid), signal.SIGTERM)
+    subprocess.run(['quikey-daemon', 'stop'])
