@@ -23,7 +23,6 @@ class PhraseHandler:
         
     def notify(self, incomingkey):
         keyboard = Controller()
-
         if self.regex.match(incomingkey):
             phrase = self.db.get(self.key)
             self.backspace(len(self.key)+1)

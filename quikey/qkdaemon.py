@@ -100,6 +100,3 @@ def stop():
         print("No quikey-daemon process currently running.")
         return
     os.kill(int(pid), signal.SIGTERM)
-
-if __name__=='__main__':
-    cli(obj={})

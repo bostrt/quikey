@@ -24,7 +24,7 @@ def get_database():
 @click.group()
 @click.pass_context
 def cli(ctx):
-    ctx.obj['database'] = get_database()
+    ctx.obj = {'database': get_database()}
     
 @cli.command()
 @click.option('--name' ,'-n', required=True, help='Name of quikey phrase to add.')
@@ -43,11 +43,8 @@ def add(ctx,name,phrase,tag):
         else:
             click.echo('quikey phrase with key of %s not added' % name)
             return
-    try:
-        db.put(name, contents, tag)
-        click.echo('quikey phrase with key of %s added.' % name)
-    except peewee.IntegrityError:
-        click.echo('quikey phrase with key of %s already exists. Please choose another --name/-n value.' % name)
+    db.put(name, contents, tag)
+    click.echo('quikey phrase with key of %s added.' % name)
 
 @cli.command()
 @click.option('--name', '-n', required=True, help='Name of quikey phrase to edit.')
@@ -119,6 +116,3 @@ def stop():
 @click.pass_context
 def restart(ctx):
     pass
-
-if __name__=='__main__':
-    cli(obj={})

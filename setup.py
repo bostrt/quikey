@@ -10,8 +10,8 @@ setup(
     author='bostrt',
     entry_points = {
         'console_scripts': [
-            'quikey=quikey.quikey:cli',
-            'qkdaemon=quikey.qkdaemon:cli'
+            'qk=quikey.quikey:cli',
+            'quikey-daemon=quikey.qkdaemon:cli'
             ]
     },
     description='A keyboard macro tool.',
