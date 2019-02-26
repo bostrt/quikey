@@ -20,23 +20,21 @@ class PhraseHandler:
         escaped = re.escape(key)
         self.db = database
         self.regex = re.compile('^.*' + escaped + '$')
+        self.keyboard = Controller()
         
     def notify(self, incomingkey):
-        keyboard = Controller()
         if self.regex.match(incomingkey):
             phrase = self.db.get(self.key)
             self.backspace(len(self.key)+1)
-            keyboard.type(phrase)
+            self.keyboard.type(phrase)
             return True
         return False
     
     def backspace(self, count):
-        keyboard = Controller()
-
         i = 0
         while i < count:
-            keyboard.press(Key.backspace)
-            keyboard.release(Key.backspace)
+            self.keyboard.press(Key.backspace)
+            self.keyboard.release(Key.backspace)
             i = i + 1
 
 class Notifier:
