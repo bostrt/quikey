@@ -71,6 +71,7 @@ class Notifier:
                 pass
         # No observers hanlded the phrase-key so go head and release lock.
         self.lock.release()
+        return False
 
 class AlphaNumHandler:
     """
@@ -82,7 +83,7 @@ class AlphaNumHandler:
     def onkey(self, key, keybuff):
         if not self.verify(key):
             return False
-        
+
         if len(keybuff) == keybuff.maxlen:
             # Pop off front of queue if at max length.
             keybuff.popleft()
@@ -106,6 +107,18 @@ class DeleteHandler:
             keybuff.pop()
         return True
 
+class SpaceHandler:
+    """
+    Special handling for space.
+    """
+    def onkey(self, key, keybuff):
+        if key != Key.space:
+            return False
+        if len(keybuff) == keybuff.maxlen:
+            keybuff.popleft()
+        keybuff.append(' ')
+        return True
+
 class TriggerPhraseHandler:
     """
     Handles "trigger" keys that tell this app when to look for key 
@@ -123,7 +136,7 @@ class TriggerPhraseHandler:
     
     def onkey(self, key):
         return self.verify(key)
-            
+
 class InputHandler:
     """
     Handles keyboard input, calling each key-specific handler.
@@ -150,7 +163,7 @@ class InputHandler:
             if self.notifier.notify(self.dequetostr()):
                 # A phrase was found and typed out. Clear queue and return.
                 self.keybuff.clear()
-                return 
+                return
         for handler in self.subhandlers:
             result = handler.onkey(key, self.keybuff)
             if result:
