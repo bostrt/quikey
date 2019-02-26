@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pynput.keyboard import Key, Controller, Listener, KeyCode
+from pynput.keyboard import Key, Listener, KeyCode
 from threading import Lock
 import daemon
 from xdg import XDG_DATA_HOME, XDG_CONFIG_HOME, XDG_CACHE_HOME
@@ -84,7 +84,8 @@ def cli(obj):
 @click.option('--foreground' ,'-f', is_flag=True, required=False, default=False, help='Run the quikey daemon process in foreground.')
 @click.option('--buffer-size', '-b', required=False, default=32, help='Size of buffer that stores keystrokes.')
 @click.option('--trigger-keys', '-t', multiple=True, required=False, default=['enter', 'space'], help='Trigger keys that indicate the end of a key phrase. The key name should match one from https://pythonhosted.org/pynput/_modules/pynput/keyboard/_base.html#Key')
-def start(foreground, buffer_size, trigger_keys):
+@click.option('--daemon-log', required=False, default=os.path.realpath(XDG_DATA_HOME+'/quikey/qkdaemon.log'), type=click.File('w'), help='Output log file when running in daemonized mode.')
+def start(foreground, buffer_size, trigger_keys, daemon_log):
     pid = read_pid()
     if pid:
         print('Quikey daemon is already running (pid: %s).' % pid)
@@ -92,8 +93,7 @@ def start(foreground, buffer_size, trigger_keys):
     if foreground:
         main(foreground, buffer_size, trigger_keys)
     else:
-        log = open("/tmp/mylog", "w+")
-        with daemon.DaemonContext(stdout=log,stderr=log):
+        with daemon.DaemonContext(stdout=daemon_log,stderr=daemon_log):
             main(foreground, buffer_size, trigger_keys)
 
 @cli.command()
