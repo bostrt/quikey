@@ -103,4 +103,8 @@ def stop():
     if pid is None:
         print("No Quikey daemon currently running.")
         return
-    os.kill(int(pid), signal.SIGTERM)
+    try:
+        os.kill(int(pid), signal.SIGTERM)
+    except ProcessLookupError:
+        print("No Quikey daemon currently running (tried killing non-existent pid %s)." % pid)
+        delete_pid()
