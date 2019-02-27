@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
 
-VERSION='0.0.5'
+VERSION='0.0.6'
 
 setup(
     name='quikey',
