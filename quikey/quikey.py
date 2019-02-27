@@ -83,7 +83,7 @@ def ls(ctx, show_all):
     table = [['Name', 'Tags', 'Last Modified', 'Phrase']]
     phrases = db.all()
     for phrase in phrases:
-        tags = ', '.join([x.name for x in phrase.get('tags')])
+        tags = ', '.join([x for x in phrase.get('tags')])
         v = phrase.get('value')
         value = (v[:40] + '...' if len(v) > 40  and not show_all else v)
         table.append([phrase.get('key'), tags, humanize.naturalday(phrase.get('updated')), value])
