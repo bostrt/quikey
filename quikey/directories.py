@@ -3,9 +3,9 @@ import os
 
 class AppDirectories():
     def __init__(self):
-        self.data = XDG_DATA_HOME + '/quikey/'
-        self.config = XDG_CONFIG_HOME + '/quikey/'
-        self.cache = XDG_CACHE_HOME + '/quikey/'
+        self.data = os.fspath(XDG_DATA_HOME.joinpath('quikey/'))
+        self.config = os.fspath(XDG_CONFIG_HOME.joinpath('quikey/'))
+        self.cache = os.fspath(XDG_CACHE_HOME.joinpath('quikey/'))
         os.makedirs(self.data, exist_ok=True)
         os.makedirs(self.config, exist_ok=True)    
         os.makedirs(self.cache, exist_ok=True)

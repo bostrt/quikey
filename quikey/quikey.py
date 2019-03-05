@@ -3,7 +3,6 @@
 import click
 from terminaltables import AsciiTable
 import humanize
-from xdg import XDG_CACHE_HOME
 import signal
 import os
 
@@ -95,7 +94,8 @@ def start():
     subprocess.run(['quikey-daemon', 'start'])
 
 def read_pid():
-    pidfile = XDG_CACHE_HOME + '/quikey/quikey.pid'
+    appDirs = AppDirectories() # XDG folders
+    pidfile = appDirs.cache + '/quikey.pid'
     try:
         with open(pidfile, 'r') as f:
             return f.read()
