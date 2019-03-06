@@ -20,7 +20,8 @@ class Database():
 
     def update(self, key, value, tags=None):
         now = datetime.utcnow().isoformat()
-        self.db.update({'key': key, 'value': value, 'updated': now})
+        phrase = Query()
+        self.db.update({'key': key, 'value': value, 'updated': now}, phrase.key == key)
 
     def delete(self, key):
         phrase = Query()
