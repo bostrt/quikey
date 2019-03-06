@@ -4,7 +4,7 @@ from datetime import datetime
 class Database():
     def __init__(self, appDirs, dbFile='phrases.json'):
         self.appDirs = appDirs
-        self.dbFile = self.appDirs.data + dbFile
+        self.dbFile = self.appDirs.data + '/' + dbFile
         # Ensure database file exists
         self.db = TinyDB(self.dbFile)
 
