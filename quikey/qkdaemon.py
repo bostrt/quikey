@@ -40,7 +40,7 @@ class ShutdownHook:
         delete_pid(appDirs)
 
 def write_pid(appDirs):
-    pidfile = appDirs.cache + 'quikey.pid'
+    pidfile = appDirs.cache + '/quikey.pid'
     with open(pidfile, 'w') as f:
         f.write(str(os.getpid()))
 
