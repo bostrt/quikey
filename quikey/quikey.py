@@ -88,19 +88,16 @@ def ls(ctx, show_all):
         table.append([phrase.get('key'), tags, humanize.naturalday(phrase.get('updated')), value])
     output = AsciiTable(table)
     click.echo(output.table)
-    
+
+@cli.command()
+@click.pass_context
+def status(ctx):
+    subprocess.run(['quikey-daemon', 'status'])
+    click.echo("Database location: " + ctx.obj['database'].dbFile)
+
 @cli.command()
 def start():
     subprocess.run(['quikey-daemon', 'start'])
-
-def read_pid():
-    appDirs = AppDirectories() # XDG folders
-    pidfile = appDirs.cache + '/quikey.pid'
-    try:
-        with open(pidfile, 'r') as f:
-            return f.read()
-    except FileNotFoundError:
-        return None
 
 @cli.command()
 def stop():

@@ -5,6 +5,7 @@ import daemon
 import click
 import os
 import signal
+import sys
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
@@ -113,3 +114,20 @@ def stop():
     except ProcessLookupError:
         print("No Quikey daemon currently running (tried killing non-existent pid %s)." % pid)
         delete_pid(appDirs)
+
+@cli.command()
+def status():
+    # Check process existence
+    appDirs = AppDirectories() # XDG folders
+    pid = read_pid(appDirs)
+    if pid is None:
+        print ("No Quikey daemon is currently running")
+        sys.exit(1)
+    try:
+        os.kill(int(pid), 0)
+    except OSError:
+        print ("No Quikey daemon is currently running")
+        sys.exit(1)
+    else:
+        print ("Quikey daemon running (PID: " + pid +")")
+        return
