@@ -1,0 +1,64 @@
+# Completions for quikey
+# https://github.com/bostrt/quikey/
+# Copy this file to /usr/share/bash-completion/completions/ or /etc/bash_completion.d/
+
+_qk()
+{
+    compopt -o default
+    COMPREPLY=()
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local common_opts="--help"
+    local opts="${common_opts}"
+
+    # Commands
+    if [[ ${COMP_CWORD} == 1 ]] ; then
+        local qk_commands="start stop status add edit ls rm --help"
+        COMPREPLY=( $(compgen -W "${qk_commands}" -- ${cur}) )
+        compopt +o default
+        return 0
+    fi
+
+    if [[ ${cur} == -* ]] ; then
+        case "${COMP_LINE}" in
+            *' start '*)
+                local opts="${common_opts}"
+                ;;
+            *' status '*)
+                local opts="${common_opts}"
+                ;;
+            *' stop '*)
+                local opts="-n --name ${common_opts}"
+                ;;
+            *' add '*)
+                local opts="-n --name -t --tag -p --phrase ${common_opts}"
+                ;;
+            *' edit '*)
+                local opts="-n --name ${common_opts}"
+                ;;
+            *' ls '*)
+                local opts="--show-all ${common_opts}"
+                ;;
+            *' rm '*)
+                local opts="-n --name ${common_opts}"
+                ;;
+        esac
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+
+    if [[ ${prev} == -* ]] ; then
+        case "${prev}" in
+            '-n'|'--name')
+                local opts=`qk ls | grep '^| ' | cut --d ' ' -f 2 | tail -n '+2'`
+                ;;
+        esac
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+
+    return 0
+
+}
+
+complete -F _qk qk
