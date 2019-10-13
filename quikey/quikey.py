@@ -75,7 +75,8 @@ def rm(ctx,name):
         click.echo('quikey phrase with key of %s does not exist.' % name)
     
 @cli.command()
-@click.option('--show-all', is_flag=True)
+@click.option('--show-all', is_flag=True, help='Show the entire quikey phrase instead of a shortened version '
+                                               'for long quikey phrases.')
 @click.pass_context
 def ls(ctx, show_all):
     db = ctx.obj['database']
