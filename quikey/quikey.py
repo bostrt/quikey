@@ -8,6 +8,7 @@ import os
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
+from quikey.version import __version__
 import subprocess
 
 MARKER = '''
@@ -89,6 +90,10 @@ def ls(ctx, show_all):
         table.append([phrase.get('key'), tags, humanize.naturalday(phrase.get('updated')), value])
     output = AsciiTable(table)
     click.echo(output.table)
+
+@cli.command()
+def version():
+    click.echo("quikey %s" % __version__)
 
 @cli.command()
 @click.pass_context

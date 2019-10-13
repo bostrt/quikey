@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
+from quikey.version import __version__
 
-VERSION='0.1.0'
+# NOTE: Update the __version__ flag in quikey/version.py for release.
 
 setup(
     name='quikey',
-    version=VERSION,
+    version=__version__,
     packages=find_packages(),
     author='bostrt',
     entry_points = {
