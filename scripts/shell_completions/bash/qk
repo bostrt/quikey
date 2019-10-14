@@ -50,7 +50,7 @@ _qk()
     if [[ ${prev} == -* ]] ; then
         case "${prev}" in
             '-n'|'--name')
-                local opts=`qk ls | grep '^| ' | cut --d ' ' -f 2 | tail -n '+2'`
+                local opts=`qk ls | grep '^| ' | cut -d ' ' -f 2 | tail -n '+2'`
                 ;;
         esac
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )

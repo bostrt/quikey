@@ -12,7 +12,7 @@ complete -c qk -f -n __fish_is_first_token -a 'rm' -d 'Remove an entry'
 
 complete -c qk -f        -l 'help'     -d 'Show a help message and exit'
 
-complete -c qk -f -s 'n' -l 'name'     -d 'Name of quikey phrase' -a "(qk ls | grep '^| ' | cut --d ' ' -f 2 | tail -n '+2')" -n "__fish_seen_subcommand_from add edit rm"
+complete -c qk -f -s 'n' -l 'name'     -d 'Name of quikey phrase' -a "(qk ls | grep '^| ' | cut -d ' ' -f 2 | tail -n '+2')" -n "__fish_seen_subcommand_from add edit rm"
 complete -c qk -f -s 't' -l 'tag'      -d 'Optional tag for the phrase'  -n "__fish_seen_subcommand_from add"
 complete -c qk -f -s 'p' -l 'phrase'   -d 'The full phrase to add'       -n "__fish_seen_subcommand_from add"
 complete -c qk -f        -l 'show-all' -d 'Show all entries'             -n "__fish_seen_subcommand_from ls"
