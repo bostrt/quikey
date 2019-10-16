@@ -20,13 +20,12 @@ setup(
     url='https://github.com/bostrt/quikey',
     install_requires=[
         'click', 
-        'colored',
         'python-daemon',
         'inotify-simple',
         'tinydb',
         'pynput',
         'terminaltables',
-        'xdg',
+        'pyxdg',
         'humanize'
         ]
 )
