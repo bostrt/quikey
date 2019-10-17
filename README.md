@@ -17,12 +17,17 @@ $ python3 -m pip install --user quikey
 ```shell
 $ yay -S quikey
 ```
-See [yay](https://github.com/Jguer/yay) project if usage.
+See [yay](https://github.com/Jguer/yay) project for usage.
 
 ## Fedora (Copr)
 ```shell
 $ dnf copr enable bostrt/quikey # Enable repo
 $ dnf install quikey            # Install pkg
+```
+
+## Ubuntu, Debian, MXLinux, Mint, etc (PPA)
+```shell
+coming soon
 ```
 
 The packages above installs two available executables:
