@@ -1,4 +1,4 @@
-from pyxdg import BaseDirectory
+from xdg import BaseDirectory
 import os
 
 class AppDirectories():
