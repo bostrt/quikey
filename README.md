@@ -2,6 +2,18 @@
 
 A keyboard macro tool.
 
+----
+* [Installation](#installation)
+  * [Python 3](#python-3)
+  * [Arch Linux (AUR)](#arch-linux-aur)
+  * [Fedora (Copr)](#fedora-copr)
+  * [Ubuntu, Debian, MXLinux, Mint, etc](#ubuntu-debian-mxlinux-mint-etc-ppa)
+* [Usage](#usage)
+  * [Quickstart](#quickstart)
+  * [Managing the daemon](#managing-the-daemon)
+  * [Managing phrase entries](#managing-phrase-entries)
+
+
 # Installation
 
 ## Python 3
@@ -15,9 +27,8 @@ $ python3 -m pip install --user quikey
 
 ## Arch Linux (AUR)
 ```shell
-$ yay -S quikey
+$ curl -L -O https://aur.archlinux.org/cgit/aur.git/snapshot/quikey.tar.gz && tar -xvf quikey.tar.gz && cd quikey && makepkg -si
 ```
-See [yay](https://github.com/Jguer/yay) project for usage.
 
 ## Fedora (Copr)
 ```shell
@@ -30,13 +41,17 @@ $ dnf install quikey            # Install pkg
 coming soon
 ```
 
-The packages above installs two available executables:
+The packages above install two executables:
 - `qk`
 - `quikey-daemon`
 
-Basically everything can be managed using just `qk` and examples are below.
+Everything can be managed using just `qk` and examples are below.
 
 # Usage
+
+## Quickstart
+
+
 
 ## Managing the daemon
 There is a daemon process that must be running for Quikey's macro functionality to run. You can manage the daemon from the `qk` client:
