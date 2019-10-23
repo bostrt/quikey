@@ -92,8 +92,12 @@ def start(foreground, buffer_size, trigger_keys):
     daemon_log = appDirs.data+'/qkdaemon.log'
 
     if pid:
-        print('Quikey daemon is already running (pid: %s).' % pid)
-        exit
+        try:
+            os.kill(int(pid), 0)
+            print('Quikey daemon is already running (pid: %s).' % pid)
+            return
+        except OSError:
+            pass
     if foreground:
         main(foreground, buffer_size, trigger_keys)
     else:
