@@ -15,12 +15,12 @@ class PhraseHandler:
     
     If a user types "blahblahhello<Enter>", their phrase would be triggered.
     """
-    def __init__(self, key, database):
+    def __init__(self, key, database, keyboard):
         self.key = key
         escaped = re.escape(key)
         self.db = database
         self.regex = re.compile('^.*' + escaped + '$')
-        self.keyboard = Controller()
+        self.keyboard = keyboard
         
     def notify(self, incomingkey):
         if self.regex.match(incomingkey):

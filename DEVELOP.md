@@ -30,3 +30,11 @@ Options:
 ...
 ```
 5. Finally, make your changes and [submit a PR!](https://github.com/bostrt/quikey/compare)
+
+### Running Tests
+
+Tests can be run after following setup steps above and then executing:
+
+```
+# python setup.py test
+```
