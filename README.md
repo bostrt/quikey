@@ -95,3 +95,7 @@ This will drop into your default editor (`$EDITOR`) with the current phrase for 
 $ qk rm -n ':hello:'
 quikey phrase with key of :hello: has been deleted.
 ```
+
+## Development
+
+See [DEVELOP.md](DEVELOP.md) for help.

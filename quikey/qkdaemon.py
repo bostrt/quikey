@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pynput.keyboard import Key, Listener, KeyCode
+from pynput.keyboard import Key, Listener, KeyCode, Controller
 from threading import Lock
 import daemon
 import click
@@ -23,22 +23,23 @@ class DatabaseChangeHandler:
     def init_phrase_handlers(self):
         self.notifier.clear()
         phrases = self.db.all()
+        keyboard = Controller()
         for phrase in phrases:
-            self.notifier.add(PhraseHandler(phrase.get('key'), self.db))
+            self.notifier.add(PhraseHandler(phrase.get('key'), self.db, keyboard))
     
     def notify(self, event=None):
         self.init_phrase_handlers()
         
 class ShutdownHook:
-    def __init__(self, listener, watch):
+    def __init__(self, listener, watch, appDirs):
+        self.appDirs = appDirs
         self.watch = watch
         self.listener = listener
         
     def __call__(self, signal, frame):
-        appDirs = AppDirectories() # XDG folders
         self.watch.stop()
         self.listener.stop()
-        delete_pid(appDirs)
+        delete_pid(self.appDirs)
 
 def write_pid(appDirs):
     pidfile = appDirs.cache + '/quikey.pid'
@@ -73,8 +74,8 @@ def main(foreground, buffer_size, trigger_keys):
     write_pid(appDirs) # Store the current pid
     listener = Listener(on_press=i)
     with Listener(on_press=i) as listener: # Continue listening until SIGTERM
-        signal.signal(signal.SIGTERM, ShutdownHook(listener, watch))
-        signal.signal(signal.SIGINT, ShutdownHook(listener, watch))
+        signal.signal(signal.SIGTERM, ShutdownHook(listener, watch, appDirs))
+        signal.signal(signal.SIGINT, ShutdownHook(listener, watch, appDirs))
         listener.join()
 
 @click.group()
