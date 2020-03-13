@@ -9,6 +9,7 @@ import os
 from quikey.models import Database
 from quikey.directories import AppDirectories
 from quikey.version import __version__
+from quikey.autostart import enableAutostart, disableAutostart
 import subprocess
 
 MARKER = '''
@@ -94,6 +95,20 @@ def ls(ctx, show_all):
 @cli.command()
 def version():
     click.echo("quikey %s" % __version__)
+
+@cli.group()
+def autostart():
+    pass
+
+@autostart.command()
+def enable():
+    "Enable autostart at login for quikey."
+    enableAutostart()
+
+@autostart.command()
+def disable():
+    "Disable autostart at login for quikey."
+    disableAutostart()
 
 @cli.command()
 @click.pass_context

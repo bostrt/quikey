@@ -42,20 +42,21 @@ class ShutdownHook:
         delete_pid(self.appDirs)
 
 def write_pid(appDirs):
-    pidfile = appDirs.cache + '/quikey.pid'
+    pidfile = appDirs.cache + 'quikey.pid'
     with open(pidfile, 'w') as f:
         f.write(str(os.getpid()))
 
 def read_pid(appDirs):
-    pidfile = appDirs.cache + '/quikey.pid'
+    pidfile = appDirs.cache + 'quikey.pid'
     try:
         with open(pidfile, 'r') as f:
             return f.read()
     except FileNotFoundError:
+        print(pidfile)
         return None
 
 def delete_pid(appDirs):
-    pidfile = appDirs.cache + '/quikey.pid'
+    pidfile = appDirs.cache + 'quikey.pid'
     os.remove(pidfile)
 
 def main(foreground, buffer_size, trigger_keys):
