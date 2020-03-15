@@ -11,6 +11,8 @@ class Database():
     def get(self, key):
         phrase = Query()
         phraseDict = self.db.get(phrase.key == key)
+        if phraseDict is None:
+            return None
         return phraseDict.get('value')
 
     def put(self, key, value, tags=None):
