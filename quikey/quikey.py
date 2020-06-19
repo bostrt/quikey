@@ -92,6 +92,30 @@ def ls(ctx, show_all):
     output = AsciiTable(table)
     click.echo(output.table)
 
+def filefind(location):
+    filedict = {}
+    for r, d, f in os.walk(location):
+        for file in f:
+            if ".txt" in file:
+                #join the filepath
+                filepath = os.path.join(r, file)
+                #get the .json version of each file
+                filejson = "." + filepath[:-4] + ".json"
+                #add each file.txt as key with each file.json as val
+                filedict[filepath] = filejson
+    return filedict
+
+@cli.command()
+@click.option('--location', '-l', required=True, help='Location of top level directory to import from autokey')
+@click.pass_context
+def keyimport(ctx,location):
+    print("Working!")
+    print(ctx)
+    print(location)
+    importfiles = filefind(location)
+    print(importfiles)
+    #TODO: add parsing to find valid files and add the entries to the database
+
 @cli.command()
 def version():
     click.echo("quikey %s" % __version__)
