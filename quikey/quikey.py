@@ -97,6 +97,7 @@ def filefind(location):
     for r, d, f in os.walk(location):
         for file in f:
             if ".txt" in file:
+                #TODO: add a try/except in case there isn't a matching json. In that case don't add it to the import list
                 #join the filepath
                 filepath = os.path.join(r, file)
                 #get the .json version of each file
@@ -106,6 +107,7 @@ def filefind(location):
     return filedict
 
 @cli.command()
+#TODO: add default location as current user's homedir/.config/autokey
 @click.option('--location', '-l', required=True, help='Location of top level directory to import from autokey')
 @click.pass_context
 def keyimport(ctx,location):
