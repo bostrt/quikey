@@ -5,7 +5,7 @@ from terminaltables import AsciiTable
 import humanize
 import signal
 import os
-import re
+import json
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
@@ -96,6 +96,7 @@ def ls(ctx, show_all):
 def filefind(location):
     filedict = {}
     phraseregex = re.compile('"type": "phrase"')
+    abbrevregex= re.compile(r'"abbreviations": \[\n.*(.?)')
     for r, d, f in os.walk(location):
         for file in f:
             if ".txt" in file:
@@ -103,17 +104,39 @@ def filefind(location):
                 filejson = os.path.join(r, "." + file[:-4] + ".json")
                 #if filejson doesn't exist, skip that file on import
                 if not os.path.isfile(filejson):
+                    #TODO: cleanup with formatting syntax
                     print(filejson + " does not exist for " + filepath + " ... Skipping import on this key!")
                     continue
-                with open(filejson) as openfile:
-                    filedata = openfile.read()
-                    phrasematch = re.search(phraseregex, filedata)
-                if phrasematch:
-                    #add each file.txt as key with each file.json as val. Do this as long as we find that it's a phrase autokey
-                    filedict[filepath] = filejson
                 else:
-                    print(filejson + " is not a 'phrase' type. Skipping import on key: " + filepath)
-                    continue
+                    with open(filejson) as openfile:
+                        filedata = json.load(openfile)
+                    #check if the 'type' setting is a phrase. If it isn't then skip it
+                    #TODO: change over to mode checking. abbreviation: 1 hotkey: 3
+                    if (filedata.get('type') == "phrase"):
+                        #we have to do the double get because the abbreviation value is a nested dict
+                        abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
+                        if (len(abbreviation) >= 2):
+                            #TODO: cleanup with formatting syntax
+                            print("There is more than one abbreviation for the " + filepath + " key. We will use the first abbreviation: " + abbreviation[0])
+                            key = abbreviation[0]
+                        elif (len(abbreviation) < 1):
+                            hotkey = filedata.get('hotkey', {}).get('hotKey')
+                            if hotkey is None:
+                                #TODO:cleanup with formatting syntax
+                                print("There is no abbreviation for the " + filepath + " key. Skipping import on this key!")
+                                continue
+                            else:
+                                key = hotkey
+                        else:
+                            #TODO: cleanup with formatting syntax
+                            print("Importing the " + abbreviation[0] +" abbreviation")
+                            key = abbreviation[0]
+                        print(abbreviation)
+                        #add each abbreviation as key with each file.json as val. Do this as long as we find that it's a phrase autokey
+#TODO: change this                        filedict[filepath] = filejson
+                    else:
+                        print(filejson + " is not a 'phrase' type. Skipping import on key: " + filepath)
+                        continue
     return filedict
 
 @cli.command()
