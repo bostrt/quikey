@@ -5,6 +5,7 @@ from terminaltables import AsciiTable
 import humanize
 import signal
 import os
+import re
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
@@ -94,24 +95,32 @@ def ls(ctx, show_all):
 
 def filefind(location):
     filedict = {}
+    phraseregex = re.compile('"type": "phrase"')
     for r, d, f in os.walk(location):
         for file in f:
             if ".txt" in file:
-                #TODO: add a try/except in case there isn't a matching json. In that case don't add it to the import list
-                #join the filepath
                 filepath = os.path.join(r, file)
-                #get the .json version of each file
-                filejson = "." + filepath[:-4] + ".json"
-                #add each file.txt as key with each file.json as val
-                filedict[filepath] = filejson
+                filejson = os.path.join(r, "." + file[:-4] + ".json")
+                #if filejson doesn't exist, skip that file on import
+                if not os.path.isfile(filejson):
+                    print(filejson + " does not exist for " + filepath + " ... Skipping import on this key!")
+                    continue
+                with open(filejson) as openfile:
+                    filedata = openfile.read()
+                    phrasematch = re.search(phraseregex, filedata)
+                if phrasematch:
+                    #add each file.txt as key with each file.json as val. Do this as long as we find that it's a phrase autokey
+                    filedict[filepath] = filejson
+                else:
+                    print(filejson + " is not a 'phrase' type. Skipping import on key: " + filepath)
+                    continue
     return filedict
 
 @cli.command()
-#TODO: add default location as current user's homedir/.config/autokey
-@click.option('--location', '-l', required=True, help='Location of top level directory to import from autokey')
+@click.option('--location', '-l', default=os.getenv("HOME")+"/.config/autokey", show_default=True, help='Location of top level directory to import from autokey')
 @click.pass_context
 def keyimport(ctx,location):
-    print("Working!")
+    #TODO:remove these print statements when functionality is complete
     print(ctx)
     print(location)
     importfiles = filefind(location)
