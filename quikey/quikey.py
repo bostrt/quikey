@@ -93,49 +93,50 @@ def ls(ctx, show_all):
     output = AsciiTable(table)
     click.echo(output.table)
 
-def filefind(location):
+def phrasefind(location):
     filedict = {}
-    phraseregex = re.compile('"type": "phrase"')
-    abbrevregex= re.compile(r'"abbreviations": \[\n.*(.?)')
     for r, d, f in os.walk(location):
         for file in f:
             if ".txt" in file:
                 filepath = os.path.join(r, file)
                 filejson = os.path.join(r, "." + file[:-4] + ".json")
+                print(filepath)
                 #if filejson doesn't exist, skip that file on import
                 if not os.path.isfile(filejson):
-                    #TODO: cleanup with formatting syntax
-                    print(filejson + " does not exist for " + filepath + " ... Skipping import on this key!")
+                    print("json config file does not exist for %s ... Skipping import on this key!" % filepath)
                     continue
                 else:
                     with open(filejson) as openfile:
-                        filedata = json.load(openfile)
+                        try:
+                            filedata = json.load(openfile)
+                        except json.JSONDecodeError:
+                            print("Invalid json detected on %s. Skipping import on this key." % filejson)
+                            continue
                     #check if the 'type' setting is a phrase. If it isn't then skip it
-                    #TODO: change over to mode checking. abbreviation: 1 hotkey: 3
                     if (filedata.get('type') == "phrase"):
-                        #we have to do the double get because the abbreviation value is a nested dict
-                        abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
-                        if (len(abbreviation) >= 2):
-                            #TODO: cleanup with formatting syntax
-                            print("There is more than one abbreviation for the " + filepath + " key. We will use the first abbreviation: " + abbreviation[0])
+                        modes = filedata.get('modes')
+                        #modes in autohotkey are 1 for abbreviation, 3 for hotkey. Use this to check what we want to message
+                        if sum(modes) == 1:
+                            abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
+                            print('Importing %s with abbreviation %s' % (filepath, abbreviation[0]))
                             key = abbreviation[0]
-                        elif (len(abbreviation) < 1):
-                            hotkey = filedata.get('hotkey', {}).get('hotKey')
-                            if hotkey is None:
-                                #TODO:cleanup with formatting syntax
-                                print("There is no abbreviation for the " + filepath + " key. Skipping import on this key!")
-                                continue
-                            else:
-                                key = hotkey
+                        elif sum(modes) == 4:
+                            abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
+                            print('Modes for %s are both abbreviation and hotkey. Using %s for import' % (filepath, abbreviation[0]))
+                            key = abbreviation[0]
+                        elif sum(modes) == 3:
+                            #don't believe we have support for hotkeys right now (like F keys, etc)
+                            print('Mode for %s is hotkey. Please manually add this phrase with an abbreviation, or change from hotkey to abbreviation.' % filepath)
+                            continue
                         else:
-                            #TODO: cleanup with formatting syntax
-                            print("Importing the " + abbreviation[0] +" abbreviation")
-                            key = abbreviation[0]
-                        print(abbreviation)
-                        #add each abbreviation as key with each file.json as val. Do this as long as we find that it's a phrase autokey
-#TODO: change this                        filedict[filepath] = filejson
+                            print('Could not auto-detect mode for %s - please manually import this phrase.' % filepath)
+                            continue
+                        #add each abbreviation as key with each phrase as val. Do this as long as we find that it's a phrase autokey
+                        with open(filepath) as phrasefile:
+                            value = phrasefile.read()
+                        filedict[key] = value
                     else:
-                        print(filejson + " is not a 'phrase' type. Skipping import on key: " + filepath)
+                        print("%s is not a 'phrase' type. Skipping import on this key!" % filepath)
                         continue
     return filedict
 
@@ -144,11 +145,7 @@ def filefind(location):
 @click.pass_context
 def keyimport(ctx,location):
     #TODO:remove these print statements when functionality is complete
-    print(ctx)
-    print(location)
-    importfiles = filefind(location)
-    print(importfiles)
-    #TODO: add parsing to find valid files and add the entries to the database
+    importfiles = phrasefind(location)
 
 @cli.command()
 def version():
