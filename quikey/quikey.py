@@ -6,6 +6,7 @@ import humanize
 import signal
 import os
 import json
+import logging
 
 from quikey.models import Database
 from quikey.directories import AppDirectories
@@ -100,17 +101,16 @@ def phrasefind(location):
             if ".txt" in file:
                 filepath = os.path.join(r, file)
                 filejson = os.path.join(r, "." + file[:-4] + ".json")
-                print(filepath)
                 #if filejson doesn't exist, skip that file on import
                 if not os.path.isfile(filejson):
-                    print("json config file does not exist for %s ... Skipping import on this key!" % filepath)
+                    logging.error("json config file does not exist for %s ... Skipping import on this key!" % filepath)
                     continue
                 else:
                     with open(filejson) as openfile:
                         try:
                             filedata = json.load(openfile)
                         except json.JSONDecodeError:
-                            print("Invalid json detected on %s. Skipping import on this key." % filejson)
+                            logging.error("Invalid json detected on %s. Skipping import on this key." % filejson)
                             continue
                     #check if the 'type' setting is a phrase. If it isn't then skip it
                     if (filedata.get('type') == "phrase"):
@@ -118,22 +118,38 @@ def phrasefind(location):
                         #modes in autohotkey are 1 for abbreviation, 3 for hotkey. Use this to check what we want to message
                         if sum(modes) == 1:
                             abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
-                            print('Importing %s with abbreviation %s' % (filepath, abbreviation[0]))
-                            key = abbreviation[0]
+                            logging.info('Importing %s.' % (filepath))
                         elif sum(modes) == 4:
                             abbreviation = filedata.get('abbreviation', {}).get('abbreviations')
-                            print('Modes for %s are both abbreviation and hotkey. Using %s for import' % (filepath, abbreviation[0]))
-                            key = abbreviation[0]
+                            logging.warning('Modes for %s are both abbreviation and hotkey. Using abbreviation for import' % filepath)
                         elif sum(modes) == 3:
-                            #don't believe we have support for hotkeys right now (like F keys, etc)
-                            print('Mode for %s is hotkey. Please manually add this phrase with an abbreviation, or change from hotkey to abbreviation.' % filepath)
+                            #there are too many invalid hotkeys, such as F keys. Skip these for now
+                            logging.warning('Mode for %s is hotkey. Please manually add this phrase with an abbreviation, or change from hotkey to abbreviation.' % filepath)
                             continue
                         else:
-                            print('Could not auto-detect mode for %s - please manually import this phrase.' % filepath)
+                            logging.error('Could not auto-detect mode for %s - please manually import this phrase.' % filepath)
                             continue
-                        #add each abbreviation as key with each phrase as val. Do this as long as we find that it's a phrase autokey
                         with open(filepath) as phrasefile:
                             value = phrasefile.read()
+                        if len(abbreviation) > 1:
+                            print("Multiple abbreviations were found. Please select which number you would like to use and hit enter.\n")
+                            for entry in abbreviation:
+                                print(1 + abbreviation.index(entry), end=" ")
+                                print(entry)
+                            while True:
+                                try:
+                                    abbreviationselection = int(input("Your selection: ")) - 1
+                                    key = abbreviation[abbreviationselection]
+                                except IndexError:
+                                    print("%s is not a valid selection, please pick a valid entry number." % abbreviationselection)
+                                    continue
+                                except ValueError:
+                                    print("Selection must be a number, please try again.")
+                                    continue
+                                else:
+                                    break
+                        else:
+                            key = abbreviation[0]
                         filedict[key] = value
                     else:
                         print("%s is not a 'phrase' type. Skipping import on this key!" % filepath)
@@ -144,8 +160,23 @@ def phrasefind(location):
 @click.option('--location', '-l', default=os.getenv("HOME")+"/.config/autokey", show_default=True, help='Location of top level directory to import from autokey')
 @click.pass_context
 def keyimport(ctx,location):
-    #TODO:remove these print statements when functionality is complete
+    print(ctx)
+    tags = ['autokey-imports']
+    db = ctx.obj['database']
     importfiles = phrasefind(location)
+    for key in importfiles:
+        contents = None
+        if importfiles[key] is not None:  
+            contents = importfiles[key]
+        else:
+            contents = click.edit('\n\n'+MARKER)
+            if contents is not None:
+                contents = contents.split(MARKER, 1)[0].rstrip('\n')
+            else:
+                click.echo('quikey phrase with key of %s not added' % key)
+                return
+        db.put(key, contents, tags)
+        click.echo('quikey phrase with key of %s added.' % key)
 
 @cli.command()
 def version():
