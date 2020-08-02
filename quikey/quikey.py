@@ -104,15 +104,23 @@ def keyimport(ctx,location):
     importfiles = PhraseFind(location)
     for key in importfiles:
         contents = None
-        if importfiles[key] is not None:  
-            contents = importfiles[key]
-        else:
-            contents = click.edit('\n\n'+MARKER)
-            if contents is not None:
-                contents = contents.split(MARKER, 1)[0].rstrip('\n')
+        if importfiles[key] is not None:
+            if db.get(name) is not None:
+                click.echo('quikey phrase with key of %s already exists' % name)
+                continue
             else:
-                click.echo('quikey phrase with key of %s not added' % key)
-                return
+                contents = importfiles[key]
+        else:
+            if db.get(name is not None:
+                click.echo('quikey phrase with key of %s already exists' % name)
+                continue
+            else:
+                contents = click.edit('\n\n'+MARKER)
+                if contents is not None:
+                    contents = contents.split(MARKER, 1)[0].rstrip('\n')
+                else:
+                    click.echo('quikey phrase with key of %s not added' % key)
+                    continue
         db.put(key, contents, tags)
         click.echo('quikey phrase with key of %s added.' % key)
 
