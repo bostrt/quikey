@@ -36,7 +36,7 @@ def add(ctx,name,phrase,tag):
     db = ctx.obj['database']
     contents = None
     if db.get(name) is not None:
-        click.echo('quikey phrease with key of %s already exists' % name)
+        click.echo('quikey phrase with key of %s already exists' % name)
         return
     if phrase is not None:
         contents = phrase
