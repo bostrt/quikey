@@ -105,14 +105,14 @@ def keyimport(ctx,location):
     for key in importfiles:
         contents = None
         if importfiles[key] is not None:
-            if db.get(name) is not None:
-                click.echo('quikey phrase with key of %s already exists' % name)
+            if db.get(key) is not None:
+                click.echo('quikey phrase with key of %s already exists' % key)
                 continue
             else:
                 contents = importfiles[key]
         else:
-            if db.get(name is not None:
-                click.echo('quikey phrase with key of %s already exists' % name)
+            if db.get(key) is not None:
+                click.echo('quikey phrase with key of %s already exists' % key)
                 continue
             else:
                 contents = click.edit('\n\n'+MARKER)
