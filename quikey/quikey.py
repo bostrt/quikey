@@ -62,6 +62,10 @@ def edit(ctx,name):
     if name is None:
         # Show user prompt with list of keys
         name = prompt.show(db, "edit")
+        if name is None:
+            click.echo('No phrases available to edit. Use "qk add" to create a new one.')
+            return
+
     phrase = db.get(name)
     if phrase is not None:
         contents = click.edit(phrase + '\n\n' + MARKER)
@@ -84,6 +88,9 @@ def rm(ctx,name):
     if name is None:
         # Show user prompt with list of keys
         name = prompt.show(db, "remove")
+        if name is None:
+            click.echo('No phrases available to remove.')
+            return
 
     if db.delete(name):
         click.echo('quikey phrase with key of %s has been deleted.' % name)
