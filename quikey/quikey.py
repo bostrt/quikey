@@ -12,6 +12,7 @@ from quikey.directories import AppDirectories
 from quikey.version import __version__
 from quikey.autostart import enableAutostart, disableAutostart
 from quikey.importer import PhraseFind
+from quikey import prompt
 from xdg import BaseDirectory
 import subprocess
 
@@ -58,10 +59,17 @@ def add(ctx,name,phrase,tag):
     click.echo('quikey phrase with key of %s added.' % name)
 
 @cli.command()
-@click.option('--name', '-n', required=True, help='Name of quikey phrase to edit.')
+@click.option('--name', '-n', help='Name of quikey phrase to edit.')
 @click.pass_context
 def edit(ctx,name):
     db = ctx.obj['database']
+    if name is None:
+        # Show user prompt with list of keys
+        name = prompt.show(db, "edit")
+        if name is None:
+            click.echo('No phrases available to edit. Use "qk add" to create a new one.')
+            return
+
     phrase = db.get(name)
     if phrase is not None:
         contents = click.edit(phrase + '\n\n' + MARKER)
@@ -76,11 +84,18 @@ def edit(ctx,name):
         
 
 @cli.command()
-@click.option('--name', '-n', required=True, help='Name of quikey phrase to remove.')
+@click.option('--name', '-n', help='Name of quikey phrase to remove.')
 @click.pass_context
 def rm(ctx,name):
     db = ctx.obj['database']
     # TODO: Support multiple.
+    if name is None:
+        # Show user prompt with list of keys
+        name = prompt.show(db, "remove")
+        if name is None:
+            click.echo('No phrases available to remove.')
+            return
+
     if db.delete(name):
         click.echo('quikey phrase with key of %s has been deleted.' % name)
     else:

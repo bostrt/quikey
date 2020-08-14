@@ -26,6 +26,7 @@ setup(
         'pynput',
         'terminaltables',
         'pyxdg',
-        'humanize'
+        'humanize',
+        'pick',
         ]
 )
