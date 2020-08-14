@@ -37,6 +37,10 @@ def cli(ctx):
 @click.pass_context
 def add(ctx,name,phrase,tag):
     db = ctx.obj['database']
+    if not name or not name.strip():
+        click.echo('quikey phrase cannot be empty')
+        return
+
     contents = None
     if db.get(name) is not None:
         click.echo('quikey phrase with key of %s already exists' % name)
