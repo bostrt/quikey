@@ -14,15 +14,26 @@ A keyboard macro tool.
   * [Managing phrase entries](#managing-phrase-entries)
 
 
-# Installation
+# Installation and Upgrade
+
+
+The following packages will install two commands:
+
+- `qk`
+- `quikey-daemon`
+
+Everything can be managed using just `qk` and examples are [further below](#usage).
+
 
 ## Python 3
 ```shell
-$ pip3 install --user quikey
+$ pip3 install --user quikey 
+$ pip3 install --user -U quikey #<-- Upgrade
 ```
 or 
 ```shell
 $ python3 -m pip install --user quikey
+$ python3 -m pip install --user -U quikey #<-- Upgrade
 ```
 
 ## Arch Linux (AUR)
@@ -34,6 +45,7 @@ $ curl -L -O https://aur.archlinux.org/cgit/aur.git/snapshot/quikey.tar.gz && ta
 ```shell
 $ dnf copr enable bostrt/quikey # Enable repo
 $ dnf install quikey            # Install pkg
+$ dnf update quikey             # Update pkg
 ```
 
 ## Ubuntu, Debian, MXLinux, Mint, etc (PPA)
@@ -41,24 +53,19 @@ $ dnf install quikey            # Install pkg
 coming soon
 ```
 
-The packages above install two executables:
-- `qk`
-- `quikey-daemon`
-
-Everything can be managed using just `qk` and examples are below.
-
 # Usage
-
-## Quickstart
-
-
 
 ## Managing the daemon
 There is a daemon process that must be running for Quikey's macro functionality to run. You can manage the daemon from the `qk` client:
 
-#### Start daemon
+### Start daemon
 ```shell
 $ qk start
+```
+
+### Autostart on Login
+```shell
+$ qk autostart enable
 ```
 
 ### Stop daemon
@@ -84,6 +91,14 @@ $ qk ls
 +---------+------+----------------------------+-----------------------------+
 
 ```
+
+### Interactive editing
+Use interactive menus to edit and remove phrases:
+```
+$ qk edit
+$ qk rm
+```
+
 ### Editing a phrase
 ```shell
 $ qk edit -n ':hello:'
