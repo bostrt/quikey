@@ -17,7 +17,7 @@ from xdg import BaseDirectory
 import subprocess
 
 MARKER = '''
-# Everything after this line will be ignored.
+# Everything below this line will be ignored.
 # Insert your quikey phrase into this file then save and close.
 '''
 
@@ -55,9 +55,9 @@ def add(ctx,name,phrase,tag):
     if phrase is not None:
         contents = phrase
     else:
-        contents = click.edit('\n\n'+MARKER)
+        contents = click.edit(MARKER)
         if contents is not None:
-            contents = contents.split(MARKER, 1)[0].rstrip('\n')
+            contents = contents.split(MARKER, 1)[0]
         else:
             click.echo('quikey phrase with key of %s not added' % name)
             return
@@ -78,9 +78,9 @@ def edit(ctx,name):
 
     phrase = db.get(name)
     if phrase is not None:
-        contents = click.edit(phrase + '\n\n' + MARKER)
+        contents = click.edit(phrase + MARKER)
         if contents is not None:
-            contents = contents.split(MARKER, 1)[0].rstrip('\n')
+            contents = contents.split(MARKER, 1)[0]
             db.update(name, contents)
             click.echo('quikey phrase with key of %s updated.' % name)
         else:
@@ -145,7 +145,7 @@ def keyimport(ctx,location):
             else:
                 contents = click.edit('\n\n'+MARKER)
                 if contents is not None:
-                    contents = contents.split(MARKER, 1)[0].rstrip('\n')
+                    contents = contents.split(MARKER, 1)[0]
                 else:
                     click.echo('quikey phrase with key of %s not added' % key)
                     continue
