@@ -28,5 +28,6 @@ setup(
         'pyxdg',
         'humanize',
         'pick',
+        'filelock'
         ]
 )
