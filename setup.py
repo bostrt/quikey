@@ -13,6 +13,8 @@ setup(
         "console_scripts": ["qk=quikey.quikey:cli", "quikey-daemon=quikey.qkdaemon:cli"]
     },
     description="A keyboard macro tool.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     license="",
     url="https://github.com/bostrt/quikey",
     install_requires=[
