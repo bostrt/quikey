@@ -52,6 +52,7 @@ $ dnf update quikey             # Update pkg
 ```shell
 coming soon
 ```
+[Want to help with packaging?](https://github.com/bostrt/quikey/issues/49)
 
 # Usage
 
