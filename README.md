@@ -2,14 +2,15 @@
 
 A keyboard macro tool.
 
+Please share *your* use case [here](https://github.com/bostrt/quikey/issues/54)!
+
 ----
-* [Installation](#installation)
+* [Installation](#installation-and-upgrade)
   * [Python 3](#python-3)
   * [Arch Linux (AUR)](#arch-linux-aur)
   * [Fedora (Copr)](#fedora-copr)
   * [Ubuntu, Debian, MXLinux, Mint, etc](#ubuntu-debian-mxlinux-mint-etc-ppa)
 * [Usage](#usage)
-  * [Quickstart](#quickstart)
   * [Managing the daemon](#managing-the-daemon)
   * [Managing phrase entries](#managing-phrase-entries)
 
